@@ -73,7 +73,7 @@ export default function Auth() {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="w-full max-w-md space-y-8 glass-effect p-8 rounded-xl">
+      <div className="w-full max-w-md space-y-8 p-8 rounded-xl bg-black/30 backdrop-blur-lg border border-white/10 shadow-lg shadow-blue-500/20">
         <div className="text-center">
           <h2 className="text-2xl font-bold">{isLogin ? "Welcome back" : "Create an account"}</h2>
           <p className="text-muted-foreground mt-2">

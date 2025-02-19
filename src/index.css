@@ -4,8 +4,8 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    --background: 220 40% 2%;
+    --foreground: 220 40% 98%;
     --card: 0 0% 100%;
     --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
@@ -103,33 +103,50 @@
 
 .earth-container {
   position: fixed;
-  bottom: -150px;
-  right: -150px;
-  width: 300px;
-  height: 300px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 500px;
+  height: 500px;
   pointer-events: none;
+  z-index: -1;
 }
 
 .earth {
   width: 100%;
   height: 100%;
-  background: url('https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Earth_Western_Hemisphere_transparent_background.png/1024px-Earth_Western_Hemisphere_transparent_background.png');
+  background: url('https://raw.githubusercontent.com/mtliendo/8k-earth/main/src/assets/night-earth.png');
   background-size: cover;
   border-radius: 50%;
-  box-shadow: -20px -20px 50px 2px rgba(0, 0, 0, 0.5),
-              inset -20px -20px 50px 2px rgba(0, 0, 0, 0.5);
-  animation: rotate 60s linear infinite;
+  box-shadow: 
+    0 0 100px 10px rgba(51, 153, 255, 0.3),
+    inset 0 0 50px 2px rgba(51, 153, 255, 0.2),
+    -20px -20px 50px 2px rgba(0, 0, 0, 0.5);
+  animation: rotate 120s linear infinite;
+  position: relative;
 }
 
-.electric-lines {
+.earth::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.1) 0%, rgba(0, 0, 0, 0.4) 80%);
+  pointer-events: none;
+}
+
+.space-atmosphere {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   background: 
-    linear-gradient(90deg, transparent 0%, rgba(32, 128, 255, 0.2) 50%, transparent 100%),
-    linear-gradient(180deg, transparent 0%, rgba(32, 128, 255, 0.2) 50%, transparent 100%);
-  pointer-events: none;
-  opacity: 0.3;
+    radial-gradient(circle at center, rgba(51, 153, 255, 0.1) 0%, transparent 60%),
+    radial-gradient(circle at center, rgba(255, 255, 255, 0.05) 0%, transparent 40%);
+  filter: blur(20px);
+  z-index: -2;
 }
