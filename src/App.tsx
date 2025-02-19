@@ -28,7 +28,15 @@ function AuthRedirect({ children }: { children: React.ReactNode }) {
 }
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
+  <>
+    <div className="space-background">
+      <div className="stars"></div>
+      <div className="electric-lines"></div>
+      <div className="earth-container">
+        <div className="earth"></div>
+      </div>
+    </div>
+    <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <TooltipProvider>
         <Toaster />
@@ -57,6 +65,7 @@ const App = () => (
       </TooltipProvider>
     </AuthProvider>
   </QueryClientProvider>
+  </>
 );
 
 export default App;
