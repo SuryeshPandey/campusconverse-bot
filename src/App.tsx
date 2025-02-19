@@ -35,7 +35,9 @@ const App = () => (
       <div className="earth-container">
         <div className="earth"></div>
       </div>
-      <div className="app-title">Campus Compass</div>
+      <div className="app-title">
+        CAMPUS<br/>COMPASS
+      </div>
     </div>
     <QueryClientProvider client={queryClient}>
     <AuthProvider>
