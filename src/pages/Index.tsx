@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@/components/ui/use-toast";
 
 interface ChatMessage {
   role: "user" | "assistant";
@@ -24,6 +25,7 @@ export default function Index() {
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -42,36 +44,42 @@ export default function Index() {
 
     try {
       const HfInference = await import('@huggingface/inference').then(m => m.default);
-      const hf = new HfInference(import.meta.env.VITE_HUGGINGFACE_API_KEY);
+      const hf = new HfInference(import.meta.env.VITE_HUGGING_FACE_API_KEY);
 
       const response = await hf.textGeneration({
-        model: 'mistralai/Mistral-7B-Instruct-v0.2',
+        model: 'mistralai/Mistral-7B-Instruct-v0.3',
         inputs: `<s>[INST] ${content} [/INST]`,
         parameters: {
           max_new_tokens: 500,
-          temperature: 0.9,
+          temperature: 0.7,
           top_k: 50,
           top_p: 0.95,
           repetition_penalty: 1.2,
         },
       });
 
-      console.log('API Response:', response);
-
       if (!response || !response.generated_text) {
         throw new Error('Invalid response from API');
       }
 
-      const generatedText = response.generated_text.replace(/\[\/INST\]/, '').trim();
+      // Extract the response text after [/INST]
+      const responseText = response.generated_text.split('[/INST]').pop()?.trim() || '';
 
       const assistantMessage: ChatMessage = {
         role: "assistant",
-        content: generatedText,
+        content: responseText,
         timestamp: new Date().toLocaleTimeString(),
       };
+
       setMessages((prev) => [...prev, assistantMessage]);
     } catch (error) {
       console.error('Error:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "I apologize, but I encountered an error processing your request.",
+      });
+      
       const errorMessage: ChatMessage = {
         role: "assistant",
         content: "I apologize, but I encountered an error processing your request.",
