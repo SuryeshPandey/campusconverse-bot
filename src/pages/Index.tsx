@@ -45,27 +45,40 @@ export default function Index() {
       const hf = new HfInference(import.meta.env.VITE_HUGGINGFACE_API_KEY);
       
       // Using Mistral-7B model
-      const response = await hf.textGeneration({
-        model: 'mistralai/Mistral-7B-Instruct-v0.3',
-        inputs: `<s>[INST] ${content} [/INST]`,
-        parameters: {
-          max_new_tokens: 200,
-          temperature: 0.7,
-          top_p: 0.95,
-          repetition_penalty: 1.1,
-          return_full_text: false,
+      const response = await fetch('https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.3', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${import.meta.env.VITE_HUGGINGFACE_API_KEY}`,
+          'Content-Type': 'application/json',
         },
+        body: JSON.stringify({
+          inputs: `<s>[INST] ${content} [/INST]`,
+          parameters: {
+            max_new_tokens: 200,
+            temperature: 0.7,
+            top_p: 0.95,
+            return_full_text: false,
+          }
+        }),
       });
 
-      console.log('API Response:', response); // For debugging
-      
-      if (!response || !response.generated_text) {
-        throw new Error('Invalid response from API');
+      if (!response.ok) {
+        console.error('API Error:', await response.text());
+        throw new Error('API request failed');
       }
+
+      const result = await response.json();
+      console.log('API Response:', result);
+
+      if (!result || !result[0] || !result[0].generated_text) {
+        throw new Error('Invalid response format from API');
+      }
+
+      const generatedText = result[0].generated_text.trim();
 
       const assistantMessage: ChatMessage = {
         role: "assistant",
-        content: response.generated_text.trim(),
+        content: generatedText,
         timestamp: new Date().toLocaleTimeString(),
       };
       setMessages((prev) => [...prev, assistantMessage]);
