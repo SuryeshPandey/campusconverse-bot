@@ -36,7 +36,7 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
         onChange={(e) => setMessage(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder="Type your message..."
-        className="resize-none min-h-[52px] max-h-[200px] text-white bg-gray-800/50 border-gray-700"
+        className="resize-none min-h-[52px] max-h-[200px] text-white bg-gray-800/50 border-gray-700 placeholder:text-gray-300"
         rows={1}
       />
       <Button
