@@ -44,7 +44,18 @@ export default function Index() {
     setIsLoading(true);
 
     try {
-      const hf = new HfInference(import.meta.env.VITE_HUGGING_FACE_API_KEY);
+      // Get the secrets from Supabase
+      const { data: secrets, error: secretsError } = await supabase
+        .from('secrets')
+        .select('value')
+        .eq('name', 'HUGGING_FACE_API_KEY')
+        .single();
+
+      if (secretsError || !secrets) {
+        throw new Error('Could not retrieve API key');
+      }
+
+      const hf = new HfInference(secrets.value);
 
       const response = await hf.textGeneration({
         model: 'mistralai/Mistral-7B-Instruct-v0.3',
@@ -81,6 +92,8 @@ export default function Index() {
         errorMessage = "Authentication failed. Please check your Hugging Face API key.";
       } else if (error.message.includes("Failed to fetch")) {
         errorMessage = "Network error. Please check your internet connection.";
+      } else if (error.message.includes("Could not retrieve API key")) {
+        errorMessage = "Could not access the API key. Please check your configuration.";
       }
 
       toast({
