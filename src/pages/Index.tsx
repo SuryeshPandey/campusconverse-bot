@@ -72,20 +72,29 @@ export default function Index() {
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error:', error);
+      
+      // More specific error message based on the error type
+      let errorMessage = "I apologize, but I encountered an error processing your request.";
+      if (error.message.includes("Invalid username or password")) {
+        errorMessage = "Authentication failed. Please check your Hugging Face API key.";
+      } else if (error.message.includes("Failed to fetch")) {
+        errorMessage = "Network error. Please check your internet connection.";
+      }
+
       toast({
         variant: "destructive",
         title: "Error",
-        description: "I apologize, but I encountered an error processing your request.",
+        description: errorMessage,
       });
       
-      const errorMessage: ChatMessage = {
+      const assistantMessage: ChatMessage = {
         role: "assistant",
-        content: "I apologize, but I encountered an error processing your request.",
+        content: errorMessage,
         timestamp: new Date().toLocaleTimeString(),
       };
-      setMessages((prev) => [...prev, errorMessage]);
+      setMessages((prev) => [...prev, assistantMessage]);
     } finally {
       setIsLoading(false);
     }
