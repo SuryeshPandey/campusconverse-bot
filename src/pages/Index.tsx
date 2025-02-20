@@ -44,19 +44,22 @@ export default function Index() {
       const HfInference = await import('@huggingface/inference').then(m => m.default);
       const hf = new HfInference(import.meta.env.VITE_HUGGINGFACE_API_KEY);
       
+      // Using a simple text generation model
       const response = await hf.textGeneration({
-        model: 'google/flan-t5-small',  // Using a more reliable model
-        inputs: `Answer this question: ${content}`,
+        model: 'distilgpt2',
+        inputs: content,
         parameters: {
-          max_new_tokens: 100,
+          max_new_tokens: 50,
           temperature: 0.7,
-          top_p: 0.95,
-          return_full_text: false,
+          top_k: 50,
+          num_return_sequences: 1,
         },
       });
 
-      if (!response.generated_text) {
-        throw new Error('No response generated');
+      console.log('API Response:', response); // For debugging
+      
+      if (!response || !response.generated_text) {
+        throw new Error('Invalid response from API');
       }
 
       const assistantMessage: ChatMessage = {
