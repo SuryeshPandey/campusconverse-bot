@@ -45,8 +45,8 @@ export default function Index() {
       const hf = new HfInference(import.meta.env.VITE_HUGGINGFACE_API_KEY);
       
       const response = await hf.textGeneration({
-        model: 'gpt2',
-        inputs: content,
+        model: 'google/flan-t5-small',  // Using a more reliable model
+        inputs: `Answer this question: ${content}`,
         parameters: {
           max_new_tokens: 100,
           temperature: 0.7,
@@ -55,9 +55,13 @@ export default function Index() {
         },
       });
 
+      if (!response.generated_text) {
+        throw new Error('No response generated');
+      }
+
       const assistantMessage: ChatMessage = {
         role: "assistant",
-        content: response.generated_text,
+        content: response.generated_text.trim(),
         timestamp: new Date().toLocaleTimeString(),
       };
       setMessages((prev) => [...prev, assistantMessage]);
