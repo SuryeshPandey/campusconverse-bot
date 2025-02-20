@@ -42,15 +42,17 @@ export default function Index() {
 
     try {
       const HfInference = await import('@huggingface/inference').then(m => m.default);
-      const hf = new HfInference(process.env.VITE_HUGGINGFACE_API_KEY);
+      const hf = new HfInference(import.meta.env.VITE_HUGGINGFACE_API_KEY);
       
+      const prompt = `<s>[INST] ${content} [/INST]`;
       const response = await hf.textGeneration({
         model: 'mistralai/Mistral-7B-Instruct-v0.3',
-        inputs: content,
+        inputs: prompt,
         parameters: {
-          max_new_tokens: 250,
+          max_new_tokens: 500,
           temperature: 0.7,
           top_p: 0.95,
+          return_full_text: false,
         },
       });
 
