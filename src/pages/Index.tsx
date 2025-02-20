@@ -43,10 +43,6 @@ export default function Index() {
     try {
       const HfInference = await import('@huggingface/inference').then(m => m.default);
       const hf = new HfInference(import.meta.env.VITE_HUGGINGFACE_API_KEY);
-      
-      // Using Mistral-7B model
-      const HfInference = await import('@huggingface/inference').then(m => m.default);
-      const hf = new HfInference(import.meta.env.VITE_HUGGINGFACE_API_KEY);
 
       const response = await hf.textGeneration({
         model: 'mistralai/Mistral-7B-Instruct-v0.2',
