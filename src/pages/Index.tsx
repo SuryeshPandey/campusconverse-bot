@@ -8,6 +8,7 @@ import { LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
+import { HfInference } from "@huggingface/inference";
 
 interface ChatMessage {
   role: "user" | "assistant";
@@ -43,7 +44,6 @@ export default function Index() {
     setIsLoading(true);
 
     try {
-      const HfInference = await import('@huggingface/inference').then(m => m.default);
       const hf = new HfInference(import.meta.env.VITE_HUGGING_FACE_API_KEY);
 
       const response = await hf.textGeneration({
