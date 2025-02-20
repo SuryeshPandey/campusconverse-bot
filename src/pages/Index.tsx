@@ -40,16 +40,37 @@ export default function Index() {
     setMessages((prev) => [...prev, newMessage]);
     setIsLoading(true);
 
-    // Simulate AI response (we'll implement real AI integration later)
-    setTimeout(() => {
+    try {
+      const HfInference = await import('@huggingface/inference').then(m => m.default);
+      const hf = new HfInference(process.env.VITE_HUGGINGFACE_API_KEY);
+      
+      const response = await hf.textGeneration({
+        model: 'mistralai/Mistral-7B-Instruct-v0.3',
+        inputs: content,
+        parameters: {
+          max_new_tokens: 250,
+          temperature: 0.7,
+          top_p: 0.95,
+        },
+      });
+
       const assistantMessage: ChatMessage = {
         role: "assistant",
-        content: "I'm a placeholder response. The real AI integration will be implemented soon!",
+        content: response.generated_text,
         timestamp: new Date().toLocaleTimeString(),
       };
       setMessages((prev) => [...prev, assistantMessage]);
+    } catch (error) {
+      console.error('Error:', error);
+      const errorMessage: ChatMessage = {
+        role: "assistant",
+        content: "I apologize, but I encountered an error processing your request.",
+        timestamp: new Date().toLocaleTimeString(),
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
