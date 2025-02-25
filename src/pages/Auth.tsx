@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -15,7 +14,6 @@ export default function Auth() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Check for authentication status on mount and redirect if already authenticated
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -63,22 +61,36 @@ export default function Auth() {
   const handleSocialLogin = async (provider: 'google' | 'github' | 'apple') => {
     try {
       setIsLoading(true);
-      const { error } = await supabase.auth.signInWithOAuth({
+      console.log('Starting social login with provider:', provider);
+      
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: window.location.origin,
+          redirectTo: `${window.location.origin}/auth/callback`,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
           },
         },
       });
+      
+      console.log('Auth response:', { data, error });
+      
       if (error) throw error;
+      
+      // If we have a URL to redirect to, use it
+      if (data?.url) {
+        console.log('Redirecting to:', data.url);
+        window.location.href = data.url;
+        return;
+      }
+      
     } catch (error: any) {
+      console.error('Social login error:', error);
       toast({
         variant: "destructive",
-        title: "Error",
-        description: error.message,
+        title: "Authentication Error",
+        description: error.message || "Failed to connect with Google. Please try again.",
       });
     } finally {
       setIsLoading(false);
