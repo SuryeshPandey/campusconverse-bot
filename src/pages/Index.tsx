@@ -51,8 +51,12 @@ export default function Index() {
         .eq('name', 'HUGGING_FACE_API_KEY')
         .single();
 
-      if (secretsError || !secrets) {
-        throw new Error('Could not retrieve API key');
+      if (secretsError) {
+        throw new Error('Could not retrieve API key: ' + secretsError.message);
+      }
+
+      if (!secrets?.value) {
+        throw new Error('API key not found in Supabase secrets');
       }
 
       const hf = new HfInference(secrets.value);
@@ -86,14 +90,14 @@ export default function Index() {
     } catch (error: any) {
       console.error('Error:', error);
       
-      // More specific error message based on the error type
-      let errorMessage = "I apologize, but I encountered an error processing your request.";
-      if (error.message.includes("Invalid username or password")) {
-        errorMessage = "Authentication failed. Please check your Hugging Face API key.";
-      } else if (error.message.includes("Failed to fetch")) {
-        errorMessage = "Network error. Please check your internet connection.";
+      // More specific error handling
+      let errorMessage = "An error occurred while processing your request.";
+      if (error.message.includes("API key not found")) {
+        errorMessage = "Hugging Face API key not found. Please make sure it's properly set up in Supabase.";
       } else if (error.message.includes("Could not retrieve API key")) {
-        errorMessage = "Could not access the API key. Please check your configuration.";
+        errorMessage = "Could not access the API key. Please check your Supabase connection.";
+      } else if (error.message.includes("Invalid token")) {
+        errorMessage = "Invalid Hugging Face API key. Please check if it's correct.";
       }
 
       toast({
