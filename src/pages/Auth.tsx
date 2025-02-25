@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,17 @@ export default function Auth() {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Check for authentication status on mount and redirect if already authenticated
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        navigate("/");
+      }
+    };
+    checkAuth();
+  }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,10 +62,11 @@ export default function Auth() {
 
   const handleSocialLogin = async (provider: 'google' | 'github' | 'apple') => {
     try {
+      setIsLoading(true);
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/auth`,
+          redirectTo: window.location.origin,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
@@ -68,6 +80,8 @@ export default function Auth() {
         title: "Error",
         description: error.message,
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -86,6 +100,7 @@ export default function Auth() {
             variant="outline"
             onClick={() => handleSocialLogin('google')}
             className="w-full"
+            disabled={isLoading}
           >
             <svg className="mr-2 h-4 w-4" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
               <path fill="currentColor" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"></path>
@@ -96,6 +111,7 @@ export default function Auth() {
             variant="outline"
             onClick={() => handleSocialLogin('github')}
             className="w-full"
+            disabled={isLoading}
           >
             <Github className="mr-2 h-4 w-4" />
             GitHub
@@ -104,6 +120,7 @@ export default function Auth() {
             variant="outline"
             onClick={() => handleSocialLogin('apple')}
             className="w-full"
+            disabled={isLoading}
           >
             <Apple className="mr-2 h-4 w-4" />
             Apple
@@ -129,6 +146,7 @@ export default function Auth() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              disabled={isLoading}
             />
             <Input
               type="password"
@@ -136,6 +154,7 @@ export default function Auth() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              disabled={isLoading}
             />
           </div>
 
@@ -149,6 +168,7 @@ export default function Auth() {
             variant="link"
             onClick={() => setIsLogin(!isLogin)}
             className="text-muted-foreground"
+            disabled={isLoading}
           >
             {isLogin ? "Need an account? Sign up" : "Already have an account? Sign in"}
           </Button>
