@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -22,6 +23,17 @@ export default function Auth() {
       }
     };
     checkAuth();
+
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        navigate('/');
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -61,38 +73,27 @@ export default function Auth() {
   const handleSocialLogin = async (provider: 'google' | 'github' | 'apple') => {
     try {
       setIsLoading(true);
-      console.log('Starting social login with provider:', provider);
       
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
           redirectTo: `${window.location.origin}/auth/callback`,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
-          },
         },
       });
-      
-      console.log('Auth response:', { data, error });
-      
+
       if (error) throw error;
-      
-      // If we have a URL to redirect to, use it
+
       if (data?.url) {
-        console.log('Redirecting to:', data.url);
+        // Open the authentication URL in the current window
         window.location.href = data.url;
-        return;
       }
-      
     } catch (error: any) {
       console.error('Social login error:', error);
       toast({
         variant: "destructive",
         title: "Authentication Error",
-        description: error.message || "Failed to connect with Google. Please try again.",
+        description: error.message || "Failed to connect. Please try again.",
       });
-    } finally {
       setIsLoading(false);
     }
   };
