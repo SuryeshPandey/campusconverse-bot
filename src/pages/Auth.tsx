@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -24,7 +23,6 @@ export default function Auth() {
     };
     checkAuth();
 
-    // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && session) {
         navigate('/');
@@ -78,13 +76,13 @@ export default function Auth() {
         provider,
         options: {
           redirectTo: `${window.location.origin}/auth/callback`,
+          scopes: 'email profile',
         },
       });
 
       if (error) throw error;
 
       if (data?.url) {
-        // Open the authentication URL in the current window
         window.location.href = data.url;
       }
     } catch (error: any) {
